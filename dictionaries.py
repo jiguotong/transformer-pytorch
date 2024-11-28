@@ -20,7 +20,7 @@ class IndexDictionary:
         if iterable is not None:
 
             self.vocab_tokens, self.token_counts = self._build_vocabulary(iterable, vocabulary_size)
-            self.token_index_dict = {token: index for index, token in enumerate(self.vocab_tokens)}
+            self.token_index_dict = {token: index for index, token in enumerate(self.vocab_tokens)}     # 获得词表字典
             self.vocabulary_size = len(self.vocab_tokens)
 
         self.mode = mode
@@ -47,8 +47,9 @@ class IndexDictionary:
 
         counter = Counter()
         for token in iterable:
-            counter[token] += 1
+            counter[token] += 1     # 统计每个单词出现的个数
 
+        # 特殊词汇放入所有tokens中
         if vocabulary_size is not None:
             most_commons = counter.most_common(vocabulary_size - len(self.special_tokens))
             frequent_tokens = [token for token, count in most_commons]
@@ -59,7 +60,7 @@ class IndexDictionary:
             vocab_tokens = self.special_tokens + all_tokens
             token_counts = [0] * len(self.special_tokens) + [count for token, count in counter.items()]
 
-        return vocab_tokens, token_counts
+        return vocab_tokens, token_counts       # vocab_tokens词表所有词汇，token_counts对应词汇出现次数
 
     def save(self, data_dir):
 

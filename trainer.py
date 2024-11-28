@@ -77,7 +77,7 @@ class EpochSeq2SeqTrainer:
         batch_counts = []
         batch_metrics = []
         for sources, inputs, targets in tqdm(dataloader):
-            sources, inputs, targets = sources.to(self.device), inputs.to(self.device), targets.to(self.device)
+            sources, inputs, targets = sources.to(self.device), inputs.to(self.device), targets.to(self.device) #shape (B, L)
             outputs = self.model(sources, inputs)
 
             batch_loss, batch_count = self.loss_function(outputs, targets)

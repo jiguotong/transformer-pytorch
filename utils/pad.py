@@ -5,6 +5,7 @@ PAD_TOKEN_INDEX = 0
 
 
 def pad_masking(x, target_len):
+    """获得填充区域的mask,可以忽略掉某些位置的计算"""
     # x: (batch_size, seq_len)
     batch_size, seq_len = x.size()
     padded_positions = x == PAD_TOKEN_INDEX  # (batch_size, seq_len)
@@ -13,6 +14,7 @@ def pad_masking(x, target_len):
 
 
 def subsequent_masking(x):
+    """上三角mask矩阵，用于Masked Multi-head Attention, 值为1的位置（上三角）后续会被处理为0或极小值"""
     # x: (batch_size, seq_len - 1)
     batch_size, seq_len = x.size()
     subsequent_mask = np.triu(np.ones(shape=(seq_len, seq_len)), k=1).astype('uint8')

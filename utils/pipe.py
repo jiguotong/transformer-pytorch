@@ -18,6 +18,7 @@ def input_target_collate_fn(batch):
     inputs_max_length = max(inputs_lengths)
     targets_max_length = max(targets_lengths)
 
+    # 填充，使一个batch中所有语句等长
     sources_padded = [sources + [PAD_INDEX] * (sources_max_length - len(sources)) for sources, inputs, targets in batch]
     inputs_padded = [inputs + [PAD_INDEX] * (inputs_max_length - len(inputs)) for sources, inputs, targets in batch]
     targets_padded = [targets + [PAD_INDEX] * (targets_max_length - len(targets)) for sources, inputs, targets in batch]

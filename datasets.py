@@ -44,7 +44,7 @@ class TranslationDatasetOnTheFly:
 
 
 class TranslationDataset:
-
+    """读取数据，source-target"""
     def __init__(self, data_dir, phase, limit=None):
         assert phase in ('train', 'val'), "Dataset phase must be either 'train' or 'val'"
 
@@ -70,7 +70,7 @@ class TranslationDataset:
 
     @staticmethod
     def prepare(train_source, train_target, val_source, val_target, save_data_dir):
-
+        """将src语料与tgt语料合并到一个文件中"""
         if not exists(save_data_dir):
             makedirs(save_data_dir)
 
@@ -91,7 +91,7 @@ class TranslationDataset:
 
             with open(join(save_data_dir, f'raw-{phase}.txt'), 'w') as file:
                 for source_line, target_line in zip(source_data, target_data):
-                    source_line = source_line.strip()
+                    source_line = source_line.strip()           # .strip()移除字符串两端的所有空白字符，包括空格、制表符、换行符
                     target_line = target_line.strip()
                     line = f'{source_line}\t{target_line}\n'
                     file.write(line)
@@ -114,7 +114,7 @@ class TokenizedTranslationDatasetOnTheFly:
 
 
 class TokenizedTranslationDataset:
-
+    """该类用于分词，将语句独立分为若干个单词"""
     def __init__(self, data_dir, phase, limit=None):
 
         self.raw_dataset = TranslationDataset(data_dir, phase, limit)

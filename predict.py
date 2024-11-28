@@ -30,5 +30,13 @@ predictor = Predictor(
     checkpoint_filepath=args.checkpoint
 )
 
-for index, candidate in enumerate(predictor.predict_one(args.source, num_candidates=args.num_candidates)):
-    print(f'Candidate {index} : {candidate}')
+# 1.Greedy获得预测结果
+candidate_list = predictor.predict_one_Greedy(args.source)
+for index, candidate in enumerate(candidate_list):
+    print(f'Candidate {index} : {candidate}')   
+
+
+# # 2.Beam获得预测结果
+# candidate_list = predictor.predict_one_Beam(args.source, num_candidates=args.num_candidates)
+# for index, candidate in enumerate(candidate_list):
+#     print(f'Candidate {index} : {candidate}')   

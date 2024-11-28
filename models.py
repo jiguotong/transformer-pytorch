@@ -104,13 +104,30 @@ class TransformerEncoderLayer(nn.Module):
         self.self_attention_layer = Sublayer(MultiHeadAttention(heads_count, d_model, dropout_prob), d_model)
         self.pointwise_feedforward_layer = Sublayer(PointwiseFeedForwardNetwork(d_ff, d_model, dropout_prob), d_model)
         self.dropout = nn.Dropout(dropout_prob)
+        self.norm1=nn.LayerNorm(d_model)
+        self.norm2=nn.LayerNorm(d_model)
+    
 
     def forward(self, sources, sources_mask):
         # x: (batch_size, seq_len, d_model)
-
+        
+        # Multi-Head Attention
+        x = sources
         sources = self.self_attention_layer(sources, sources, sources, sources_mask)
+        
+        # Add & Norm
+        sources += x
+        sources = self.norm1(sources)
         sources = self.dropout(sources)
+        
+        # Feed Forward
+        x = sources
         sources = self.pointwise_feedforward_layer(sources)
+        
+        # Add & Norm
+        sources += x
+        sources = self.norm2(sources)
+        sources = self.dropout(sources)
 
         return sources
 
@@ -173,14 +190,29 @@ class TransformerDecoderLayer(nn.Module):
         self.self_attention_layer = Sublayer(MultiHeadAttention(heads_count, d_model, dropout_prob, mode='self-attention'), d_model)
         self.memory_attention_layer = Sublayer(MultiHeadAttention(heads_count, d_model, dropout_prob, mode='memory-attention'), d_model)
         self.pointwise_feedforward_layer = Sublayer(PointwiseFeedForwardNetwork(d_ff, d_model, dropout_prob), d_model)
+        
+        self.dropout = nn.Dropout(dropout_prob)
+        self.norm=nn.LayerNorm(d_model)
 
     def forward(self, inputs, memory, memory_mask, inputs_mask, layer_cache=None):
-        # print('self attention')
-        # print('inputs_mask', inputs_mask)
+        # Masked Multi-Head Attention、Add & Norm
+        x = inputs
         inputs = self.self_attention_layer(inputs, inputs, inputs, inputs_mask, layer_cache)
-        # print('memory attention')
+        inputs += x
+        inputs = self.dropout(self.norm(inputs))
+        
+        # Multi-Head Attention、Add & Norm
+        x = inputs
         inputs = self.memory_attention_layer(inputs, memory, memory, memory_mask, layer_cache)
+        inputs += x
+        inputs = self.dropout(self.norm(inputs))
+        
+        # Feed Forward、Add & Norm
+        x = inputs
         inputs = self.pointwise_feedforward_layer(inputs)
+        inputs += x
+        inputs = self.dropout(self.norm(inputs))
+        
         return inputs
 
 

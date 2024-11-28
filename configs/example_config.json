@@ -1,14 +1,14 @@
 {
   "dataset_limit": null,
   "print_every": 1,
-  "save_every": 1,
+  "save_every": 5,
 
   "vocabulary_size": null,
   "share_dictionary": false,
   "positional_encoding": true,
 
-  "d_model": 128,
-  "layers_count": 1,
+  "d_model": 512,
+  "layers_count": 6,
   "heads_count": 2,
   "d_ff": 128,
   "dropout_prob": 0.1,
@@ -18,6 +18,6 @@
   "lr": 0.001,
   "clip_grads": true,
 
-  "batch_size": 10,
-  "epochs": 10
+  "batch_size": 32,
+  "epochs": 1000
 }

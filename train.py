@@ -51,6 +51,7 @@ parser.add_argument('--epochs', type=int, default=100)
 
 
 def run_trainer(config):
+    # 1.基础设置
     random.seed(0)
     np.random.seed(0)
     torch.manual_seed(0)
@@ -70,20 +71,22 @@ def run_trainer(config):
     logger.info(f'Run name : {run_name}')
     logger.info(config)
 
+    # 2.构建模型
     logger.info('Constructing dictionaries...')
     source_dictionary = IndexDictionary.load(config['data_dir'], mode='source', vocabulary_size=config['vocabulary_size'])
     target_dictionary = IndexDictionary.load(config['data_dir'], mode='target', vocabulary_size=config['vocabulary_size'])
     logger.info(f'Source dictionary vocabulary : {source_dictionary.vocabulary_size} tokens')
     logger.info(f'Target dictionary vocabulary : {target_dictionary.vocabulary_size} tokens')
-
+ 
     logger.info('Building model...')
     model = build_model(config, source_dictionary.vocabulary_size, target_dictionary.vocabulary_size)
 
     logger.info(model)
-    logger.info('Encoder : {parameters_count} parameters'.format(parameters_count=sum([p.nelement() for p in model.encoder.parameters()])))
+    logger.info('Encoder : {parameters_count} parameters'.format(parameters_count=sum([p.nelement() for p in model.encoder.parameters()]))) #torch.nelement()统计张量的元素个数
     logger.info('Decoder : {parameters_count} parameters'.format(parameters_count=sum([p.nelement() for p in model.decoder.parameters()])))
     logger.info('Total : {parameters_count} parameters'.format(parameters_count=sum([p.nelement() for p in model.parameters()])))
 
+    # 3.构建数据集
     logger.info('Loading datasets...')
     train_dataset = IndexedInputTargetTranslationDataset(
         data_dir=config['data_dir'],
@@ -108,6 +111,7 @@ def run_trainer(config):
         batch_size=config['batch_size'],
         collate_fn=input_target_collate_fn)
 
+    # 4.损失函数
     if config['label_smoothing'] > 0.0:
         loss_function = LabelSmoothingLoss(label_smoothing=config['label_smoothing'],
                                            vocabulary_size=target_dictionary.vocabulary_size)
@@ -116,6 +120,7 @@ def run_trainer(config):
 
     accuracy_function = AccuracyMetric()
 
+    # 5.优化器
     if config['optimizer'] == 'Noam':
         optimizer = NoamOptimizer(model.parameters(), d_model=config['d_model'])
     elif config['optimizer'] == 'Adam':
@@ -123,6 +128,7 @@ def run_trainer(config):
     else:
         raise NotImplementedError()
 
+    # 6.训练
     logger.info('Start training...')
     trainer = EpochSeq2SeqTrainer(
         model=model,
